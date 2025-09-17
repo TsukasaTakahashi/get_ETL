@@ -346,10 +346,15 @@ def main():
     elif choice == "3":
         limit = None
         print("全件実行モード: 全てのデータを処理します")
-        confirm = input("全件処理には時間がかかります。続行しますか？ [y/N]: ").strip().lower()
-        if confirm != 'y':
-            print("処理を中止しました")
-            return
+        try:
+            confirm = input("全件処理には時間がかかります。続行しますか？ [y/N]: ").strip().lower()
+            if confirm != 'y':
+                print("処理を中止しました")
+                return
+        except EOFError:
+            # 非対話モードの場合は自動で続行
+            print("非対話モードで全件処理を開始します")
+            pass
     else:
         print("無効な選択です。テスト実行モードで実行します")
         limit = 100

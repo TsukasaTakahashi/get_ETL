@@ -276,8 +276,8 @@ class AddressGeocodingETL:
 
 def main():
     """メイン処理"""
-    # データベースパス
-    db_path = "/Users/tsukasa/Arealinks/Apps6/sumai_agent6/backend/data/props.db"
+    # データベースパス（実際に存在するファイルを指定）
+    db_path = "/Users/tsukasa/Arealinks/Apps4/backend/data/props.db"
 
     # ETL実行（テスト用に5件のみ処理）
     etl = AddressGeocodingETL(db_path)
