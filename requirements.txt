@@ -1,0 +1,3 @@
+jageocoder>=2.0.0
+pandas
+tqdm
