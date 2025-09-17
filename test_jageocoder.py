@@ -13,8 +13,8 @@ def test_jageocoder():
     db_dir = os.path.expanduser("~/.jageocoder")
 
     try:
-        # デフォルトディレクトリを指定してinit
-        jageocoder.init(db_dir=db_dir, create=True)
+        # シンプルにinitを実行
+        jageocoder.init()
         print("初期化完了")
     except Exception as e:
         print(f"初期化エラー: {e}")

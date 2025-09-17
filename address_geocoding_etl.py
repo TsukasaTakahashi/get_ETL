@@ -95,9 +95,9 @@ class AddressGeocodingETL:
                 return None, None
 
             result = jageocoder.search(address)
-            if result and len(result) > 0:
+            if result and 'candidates' in result and len(result['candidates']) > 0:
                 # 最も確度の高い結果を使用
-                best_result = result[0]
+                best_result = result['candidates'][0]
                 if 'y' in best_result and 'x' in best_result:
                     latitude = float(best_result['y'])
                     longitude = float(best_result['x'])
@@ -145,7 +145,7 @@ class AddressGeocodingETL:
             (latitude, longitude, row_id)
         )
 
-    def process_geocoding(self, batch_size: int = 100):
+    def process_geocoding(self, batch_size: int = 100, limit: Optional[int] = None):
         """ジオコーディング処理を実行"""
         # 住所データを読み込み
         df = self.load_addresses()
@@ -160,6 +160,11 @@ class AddressGeocodingETL:
         if unprocessed_df.empty:
             logger.info("すべての住所データは既に処理済みです")
             return
+
+        # limitが指定されている場合は先頭N件のみ処理
+        if limit:
+            unprocessed_df = unprocessed_df.head(limit)
+            logger.info(f"処理を{limit}件に制限しました")
 
         logger.info(f"ジオコーディング処理を開始します: {len(unprocessed_df)}件")
 
@@ -238,10 +243,15 @@ class AddressGeocodingETL:
             'completion_rate': completion_rate
         }
 
-    def run_etl(self):
+    def run_etl(self, limit: Optional[int] = 5):
         """ETL処理をフル実行"""
         try:
             logger.info("住所ジオコーディングETLを開始します")
+
+            # jageocoderの初期化
+            logger.info("jageocoderを初期化中...")
+            jageocoder.init()
+            logger.info("jageocoder初期化完了")
 
             # データベース接続
             self.connect_db()
@@ -249,8 +259,8 @@ class AddressGeocodingETL:
             # カラム追加（必要に応じて）
             self.add_geocoding_columns()
 
-            # ジオコーディング処理実行
-            self.process_geocoding()
+            # ジオコーディング処理実行（テスト用に制限）
+            self.process_geocoding(limit=limit)
 
             # 統計情報表示
             self.get_statistics()
@@ -269,9 +279,9 @@ def main():
     # データベースパス
     db_path = "/Users/tsukasa/Arealinks/Apps6/sumai_agent6/backend/data/props.db"
 
-    # ETL実行
+    # ETL実行（テスト用に5件のみ処理）
     etl = AddressGeocodingETL(db_path)
-    etl.run_etl()
+    etl.run_etl(limit=5)
 
 
 if __name__ == "__main__":
